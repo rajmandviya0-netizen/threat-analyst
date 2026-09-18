@@ -16,6 +16,8 @@ interface Alert {
   triaging?: boolean;
 }
 
+const API_URL = 'https://threat-analyst-production.up.railway.app';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -33,7 +35,7 @@ export class App implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadAlerts();
-    this.socket = io('http://localhost:4000');
+    this.socket = io(API_URL);
     this.socket.on('newAlert', (alert: Alert) => {
       this.alerts.update(current => [alert, ...current]);
     });
@@ -44,7 +46,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   loadAlerts() {
-    this.http.get<Alert[]>('http://localhost:4000/api/alerts').subscribe({
+    this.http.get<Alert[]>(`${API_URL}/api/alerts`).subscribe({
       next: (data) => this.alerts.set(data),
       error: (err) => console.error('Failed to load alerts:', err)
     });
@@ -56,7 +58,7 @@ export class App implements OnInit, OnDestroy {
       return;
     }
     this.searching = true;
-    this.http.post<Alert[]>('http://localhost:4000/api/alerts/search', { query: this.searchQuery }).subscribe({
+    this.http.post<Alert[]>(`${API_URL}/api/alerts/search`, { query: this.searchQuery }).subscribe({
       next: (data) => {
         this.alerts.set(data);
         this.searching = false;
@@ -77,7 +79,7 @@ export class App implements OnInit, OnDestroy {
     this.alerts.update(current =>
       current.map(a => a.id === alert.id ? { ...a, triaging: true } : a)
     );
-    this.http.post<any>(`http://localhost:4000/api/alerts/${alert.id}/triage`, {}).subscribe({
+    this.http.post<any>(`${API_URL}/api/alerts/${alert.id}/triage`, {}).subscribe({
       next: (result) => {
         this.alerts.update(current =>
           current.map(a => a.id === alert.id ? {

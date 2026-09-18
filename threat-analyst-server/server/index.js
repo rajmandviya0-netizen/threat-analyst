@@ -8,12 +8,12 @@ const { runDetectionRules } = require('./ruleEngine');
 const { triageAlert, triageSearch } = require('./triage.service');
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: 'http://localhost:4200' }
+  cors: { origin: '*' }
 });
 
 app.get('/api/health', (req, res) => {
