@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install --prefix threat-analyst-client && npm run build --prefix threat-analyst-client",
+  "buildCommand": "npm --prefix threat-analyst-client install && npm --prefix threat-analyst-client run build",
   "outputDirectory": "threat-analyst-client/dist/threat-analyst-client",
   "framework": null
 }
