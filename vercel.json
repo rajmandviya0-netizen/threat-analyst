@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd threat-analyst-client && npm install && npm run build",
+  "outputDirectory": "threat-analyst-client/dist/threat-analyst-client/browser",
+  "framework": null
+}
