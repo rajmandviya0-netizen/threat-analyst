@@ -16,6 +16,16 @@ const io = new Server(server, {
   cors: { origin: '*' }
 });
 
+// Only allow a single, read-only SELECT statement from AI-generated SQL
+function isSafeSelect(sql) {
+  if (typeof sql !== 'string') return false;
+  const cleaned = sql.trim().replace(/;+\s*$/, '');
+  if (!/^select\s/i.test(cleaned)) return false;
+  if (cleaned.includes(';')) return false;
+  if (/\b(insert|update|delete|drop|alter|truncate|create|grant|revoke|copy|pg_sleep)\b/i.test(cleaned)) return false;
+  return true;
+}
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -83,6 +93,9 @@ app.post('/api/alerts/search', async (req, res) => {
   try {
     const { query } = req.body;
     const triage = await triageSearch(query);
+    if (!isSafeSelect(triage.sql)) {
+      return res.status(400).json({ error: 'Search could not be translated into a safe query' });
+    }
     const result = await pool.query(triage.sql);
     res.json(result.rows);
   } catch (err) {
